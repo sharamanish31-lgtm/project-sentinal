@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-isolation
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: backend-app
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: waf-app
+      ports:
+        - protocol: TCP
+          port: 5000
