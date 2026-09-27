@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend-app image
+        run: docker build -t backend-app:ci ./backend-app
+
+      - name: Build waf-app image
+        run: docker build -t waf-app:ci ./waf-app
+
+      - name: Scan backend-app image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: backend-app:ci
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH
+
+      - name: Scan waf-app image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: waf-app:ci
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH
